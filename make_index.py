@@ -50,7 +50,7 @@ def embed(text):
 
 def update_from_scrapbox(name=INDEX_FILE, jsonfile=JSON_FILE):
     vs = VectorStore(name)
-    data = json.load(open(jsonfile))
+    data = json.load(open(jsonfile, encoding="utf8"))
     for p in tqdm(data["pages"]):
         buf = []
         title = p["title"]
