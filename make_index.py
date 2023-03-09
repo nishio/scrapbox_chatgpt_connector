@@ -38,6 +38,7 @@ def embed(text):
             res = openai.Embedding.create(
                 input=[text],
                 model="text-embedding-ada-002")
+            time.sleep(1)
         except Exception as e:
             print(e)
             time.sleep(1)
