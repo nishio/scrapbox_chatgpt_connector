@@ -1,4 +1,5 @@
-qualia-san.pickle
+*.pickle
+from_scrapbox/nishio.json
 
 ## Python template
 # Byte-compiled / optimized / DLL files

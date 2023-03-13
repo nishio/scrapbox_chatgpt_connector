@@ -1,3 +1,4 @@
+import signal
 import time
 import json
 import tiktoken
@@ -38,7 +39,7 @@ def embed(text):
             res = openai.Embedding.create(
                 input=[text],
                 model="text-embedding-ada-002")
-            time.sleep(1)
+            # time.sleep(1)
         except Exception as e:
             print(e)
             time.sleep(1)
@@ -55,8 +56,16 @@ def clean(line):
     return line
 
 
-def update_from_scrapbox(name=INDEX_FILE, jsonfile=JSON_FILE):
-    vs = VectorStore(name)
+def update_from_scrapbox(out_index=INDEX_FILE, jsonfile=JSON_FILE, in_index=None):
+    """
+    out_index: output index file name
+    jsonfile: input json file name (from scrapbox)
+    in_index: input index file name (it is not modified, but used as cache)
+    """
+    cache = None
+    if in_index is not None:
+        cache = VectorStore(in_index, create_if_not_exist=False).cache
+    vs = VectorStore(out_index)
     data = json.load(open(jsonfile, encoding="utf8"))
     for p in tqdm(data["pages"]):
         buf = []
@@ -65,25 +74,52 @@ def update_from_scrapbox(name=INDEX_FILE, jsonfile=JSON_FILE):
             buf.append(clean(line))
             body = " ".join(buf)
             if get_size(body) > BLOCK_SIZE:
-                vs.get_or_make(body, title)
+                vs.get_or_make(body, title, cache)
                 buf = buf[len(buf) // 2:]
         body = " ".join(buf).strip()
         if body:
-            vs.get_or_make(body, title)
+            vs.get_or_make(body, title, cache)
+
+
+def safe_write(obj, name):
+    to_exit = False
+
+    def change_state(signum, frame):
+        nonlocal to_exit
+        to_exit = True
+
+    signal.signal(signal.SIGINT, change_state)
+    pickle.dump(obj, open(name, "wb"))
+    if to_exit:
+        raise KeyboardInterrupt
 
 
 class VectorStore:
-    def __init__(self, name=INDEX_FILE):
+    def __init__(self, name=INDEX_FILE, create_if_not_exist=True):
         self.name = name
         try:
             self.cache = pickle.load(open(self.name, "rb"))
         except FileNotFoundError as e:
-            self.cache = {}
+            if create_if_not_exist:
+                self.cache = {}
+            else:
+                raise
 
-    def get_or_make(self, body, title):
-        if body not in self.cache:
+    def get_or_make(self, body, title, cache=None):
+        if cache is None:
+            cache = self.cache
+        if body not in cache:
+            print("not in cache")
+            print(title, body[:20])
             self.cache[body] = (embed(body), title)
-            pickle.dump(self.cache, open(self.name, "wb"))
+            safe_write(self.cache, self.name)
+        elif body not in self.cache:
+            # print("in cache")
+            self.cache[body] = cache[body]
+            safe_write(self.cache, self.name)
+        else:
+            print("already have")
+
         return self.cache[body]
 
     def get_sorted(self, query):
@@ -96,4 +132,6 @@ class VectorStore:
 
 
 if __name__ == "__main__":
-    update_from_scrapbox()
+    # update_from_scrapbox()
+    update_from_scrapbox(
+        "nishio.pickle", "from_scrapbox/nishio.json", "nishio-20230309.pickle")
