@@ -90,6 +90,7 @@ def safe_write(obj, name):
 
     signal.signal(signal.SIGINT, change_state)
     pickle.dump(obj, open(name, "wb"))
+    signal.signal(signal.SIGINT, signal.signal.SIG_DFL)
     if to_exit:
         raise KeyboardInterrupt
 
