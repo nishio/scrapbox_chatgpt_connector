@@ -27,7 +27,7 @@ def get_size(text):
     return len(enc.encode(text))
 
 
-def embed(text):
+def embed(text, sleep_after_sucess=1):
     EMBED_MAX_SIZE = 8150  # actual limit is 8191
     text = text.replace("\n", " ")
     tokens = enc.encode(text)
@@ -39,7 +39,7 @@ def embed(text):
             res = openai.Embedding.create(
                 input=[text],
                 model="text-embedding-ada-002")
-            # time.sleep(1)
+            time.sleep(sleep_after_sucess)
         except Exception as e:
             print(e)
             time.sleep(1)
@@ -124,7 +124,7 @@ class VectorStore:
         return self.cache[body]
 
     def get_sorted(self, query):
-        q = np.array(embed(query))
+        q = np.array(embed(query, sleep_after_sucess=0))
         buf = []
         for body, (v, title) in tqdm(self.cache.items()):
             buf.append((q.dot(v), body, title))

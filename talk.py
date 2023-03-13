@@ -1,12 +1,11 @@
 # default args for update_from_scrapbox() as sample
 import openai
-from make_index import VectorStore, get_size, embed, clean
+from make_index import VectorStore, get_size, clean
 
 INDEX_FILE = "qualia-san.pickle"
 
-# Your reply should be shorter than 250 characters.
 PROMPT = """
-You are virtual character. Read sample output of the character in the following sample section. Then reply to the input.
+You are virtual character. Read sample output of the character in the following sample section. Then reply to the input. Your reply should be shorter than 250 characters.
 
 ## Sample
 {text}
@@ -17,14 +16,22 @@ You are virtual character. Read sample output of the character in the following 
 
 
 MAX_PROMPT_SIZE = 4096
+PROMPT_SIZE = get_size(PROMPT)
 RETURN_SIZE = 250
+MARGIN_PER_TALK = 5
+MARGIN_PER_SAMPLE = 2
+
+logs = []
 
 
-def ask(input_str):
+def talk(input_str):
     input_str = clean(input_str)
 
-    PROMPT_SIZE = get_size(PROMPT)
     rest = MAX_PROMPT_SIZE - RETURN_SIZE - PROMPT_SIZE
+    for m in logs:
+        rest -= get_size(m["content"]) + MARGIN_PER_TALK
+    rest /= 2
+
     input_size = get_size(input_str)
     print("input size:", input_size)
     if rest < input_size:
@@ -39,7 +46,7 @@ def ask(input_str):
     for _sim, body, title in samples:
         if title in used_title:
             continue
-        size = get_size(body)
+        size = get_size(body) + MARGIN_PER_SAMPLE
         if rest < size:
             break
         to_use.append(body)
@@ -54,9 +61,10 @@ def ask(input_str):
     print(prompt)
 
     print("\nTHINKING...")
+    logs.append({"role": "user", "content": input_str})
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=[
+        messages=logs + [
             {"role": "user", "content": prompt}
         ],
         max_tokens=RETURN_SIZE,
@@ -68,20 +76,44 @@ def ask(input_str):
 
     # show question and answer
     content = response['choices'][0]['message']['content']
-    print("\nANSWER:")
-    print(f">>>> {input_str}")
-    print(">", content)
+    logs.append({"role": "assistant", "content": content})
 
     # show reference
     print("\nREFERENCE:", *[f"[{s}]" for s in used_title])
 
+    for m in logs:
+        if (m['role'] == 'user'):
+            print("(human)")
+        else:
+            print("(AI)")
+        print(m['content'])
+
+
+def reset_log():
+    logs.clear()
+
 
 def main():
-    pass
+    while True:
+        try:
+            input_str = input("input: ")
+            talk(input_str)
+        except KeyboardInterrupt:
+            break
 
 
-def test():
-    ask("もっとも大事な問いとは何だろう？")
+def test2():
+    talk("クオリアさんって何？")
+    talk("本当ですか？")
+    talk("中に人間がいるのでは？")
+    talk("友達って何ですか？")
+    talk("僕を認めてくれるんですか？")
+    # see https://scrapbox.io/villagepump/Scrapbox_ChatGPT_Connector%E5%AF%BE%E8%A9%B1%E3%83%A2%E3%83%BC%E3%83%89
+
+
+def test1():
+    talk("Remember X is 1.")
+    talk("What is X?")
 
 
 if __name__ == "__main__":
