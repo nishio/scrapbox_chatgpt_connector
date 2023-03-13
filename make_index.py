@@ -48,6 +48,13 @@ def embed(text):
     return res["data"][0]["embedding"]
 
 
+def clean(line):
+    line = line.strip()
+    line = re.sub(r"https?://[^\s]+", "URL", line)
+    line = re.sub(r"[\s]+", " ", line)
+    return line
+
+
 def update_from_scrapbox(name=INDEX_FILE, jsonfile=JSON_FILE):
     vs = VectorStore(name)
     data = json.load(open(jsonfile, encoding="utf8"))
@@ -55,10 +62,7 @@ def update_from_scrapbox(name=INDEX_FILE, jsonfile=JSON_FILE):
         buf = []
         title = p["title"]
         for line in p["lines"]:
-            line = line.strip()
-            line = re.sub(r"https?://[^\s]+", "URL", line)
-            line = re.sub(r"[\s]+", " ", line)
-            buf.append(line)
+            buf.append(clean(line))
             body = " ".join(buf)
             if get_size(body) > BLOCK_SIZE:
                 vs.get_or_make(body, title)
