@@ -61,6 +61,15 @@ def update_from_scrapbox(out_index=INDEX_FILE, jsonfile=JSON_FILE, in_index=None
     out_index: output index file name
     jsonfile: input json file name (from scrapbox)
     in_index: input index file name (it is not modified, but used as cache)
+
+    # usage
+    ## create new index
+    update_from_scrapbox(
+        "nishio.pickle",
+        "from_scrapbox/nishio.json")
+    ## update index
+    update_from_scrapbox(
+        "nishio-0314.pickle", "from_scrapbox/nishio-0314.json", "nishio-0310.pickle")
     """
     cache = None
     if in_index is not None:
@@ -79,6 +88,7 @@ def update_from_scrapbox(out_index=INDEX_FILE, jsonfile=JSON_FILE, in_index=None
         body = " ".join(buf).strip()
         if body:
             vs.get_or_make(body, title, cache)
+    vs.save()
 
 
 def safe_write(obj, name):
@@ -113,11 +123,9 @@ class VectorStore:
             print("not in cache")
             print(title, body[:20])
             self.cache[body] = (embed(body), title)
-            safe_write(self.cache, self.name)
         elif body not in self.cache:
             # print("in cache")
             self.cache[body] = cache[body]
-            safe_write(self.cache, self.name)
         else:
             print("already have")
 
@@ -131,8 +139,9 @@ class VectorStore:
         buf.sort(reverse=True)
         return buf
 
+    def save(self):
+        safe_write(self.cache, self.name)
+
 
 if __name__ == "__main__":
-    # update_from_scrapbox()
-    update_from_scrapbox(
-        "nishio.pickle", "from_scrapbox/nishio.json", "nishio-20230309.pickle")
+    update_from_scrapbox()
