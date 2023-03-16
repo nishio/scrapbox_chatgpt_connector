@@ -69,12 +69,12 @@ def ask(input_str, index_file):
     # show question and answer
     content = response['choices'][0]['message']['content']
     print(index_file)
-    print("\nANSWER:")
-    print(f">>>> {input_str}")
-    print(">", content)
+    # print("\nANSWER:")
+    # print(f">>>> {input_str}")
+    print(" >", content)
 
     # show reference
-    print("\nREFERENCE:", *[f"[{s}]" for s in used_title])
+    # print("\nREFERENCE:", *[f"[{s}]" for s in used_title])
 
 
 def main():
@@ -82,8 +82,14 @@ def main():
 
 
 def test():
-    for person in ["motoso", "mtane0412", "nishio", "tkgshn", "blu3mo_filtered", "qualia-san"]:
-        ask("Scrapboxの良いところは？", f"{person}.pickle")
+    from random import shuffle
+    people = ["motoso",  "nishio",  # "mtane0412", "qualia-san", "tkgshn",
+              "blu3mo_filtered"]
+    shuffle(people)
+    input_str = "知的生産とは？"
+    print(f">>>> {input_str}")
+    for person in people:
+        ask(input_str, f"{person}.pickle")
 
 
 if __name__ == "__main__":
