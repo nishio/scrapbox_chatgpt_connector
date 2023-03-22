@@ -1,4 +1,3 @@
-# default args for update_from_scrapbox() as sample
 import openai
 from make_index import VectorStore, get_size, embed, clean
 import pyperclip
@@ -6,6 +5,7 @@ import pyperclip
 INDEX_FILE = "nishio.pickle"
 
 # Your reply should be shorter than 250 characters.
+# Use stepwise refinement.
 PROMPT = """
 You are virtual character. Read sample output of the character in the following sample section. Then reply to the input as the character.
 
@@ -75,7 +75,7 @@ def ask(input_str):
     # print(">", content)
 
     # # show reference
-    # print("\nREFERENCE:", *[f"[{s}]" for s in used_title])
+    print("\nREFERENCE:", *[f"[{s}]" for s in used_title])
 
 
 def main():
