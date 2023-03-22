@@ -3,11 +3,11 @@ import openai
 from make_index import VectorStore, get_size, embed, clean
 import pyperclip
 
-INDEX_FILE = "qualia-san.pickle"
+INDEX_FILE = "nishio.pickle"
 
 # Your reply should be shorter than 250 characters.
 PROMPT = """
-You are virtual character. Read sample output of the character in the following sample section. Then reply to the input.
+You are virtual character. Read sample output of the character in the following sample section. Then reply to the input as the character.
 
 ## Sample
 {text}
@@ -82,8 +82,12 @@ def main():
     pass
 
 
-def test():
-    ask("もっとも大事な問いとは何だろう？")
+def test1():
+    ask("言語モデルが進歩した時代に知的生産の在り方はどう変わるのだろうか？")
+
+
+def test2():
+    ask("KozanebaやKeichobotはどう変化していくべきだろうか？")
 
 
 if __name__ == "__main__":
