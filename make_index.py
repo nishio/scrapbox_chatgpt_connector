@@ -5,7 +5,6 @@ import openai
 import pickle
 import numpy as np
 from tqdm import tqdm
-import re
 import dotenv
 import os
 

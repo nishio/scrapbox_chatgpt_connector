@@ -1,7 +1,4 @@
-import os
-import dotenv
 import openai
-import tiktoken
 from make_index import VectorStore, get_size
 
 
@@ -22,7 +19,6 @@ def ask(input_str, index_file):
     PROMPT_SIZE = get_size(PROMPT)
     rest = MAX_PROMPT_SIZE - RETURN_SIZE - PROMPT_SIZE
     input_size = get_size(input_str)
-    # print("input size:", input_size)
     if rest < input_size:
         raise RuntimeError("too large input!")
     rest -= input_size
@@ -40,14 +36,10 @@ def ask(input_str, index_file):
             break
         to_use.append(body)
         used_title.append(title)
-        # print("\nUSE:", title, body)
         rest -= size
 
     text = "\n\n".join(to_use)
     prompt = PROMPT.format(input=input_str, text=text)
-
-    # print("\nPROMPT:")
-    # print(prompt)
 
     print("\nTHINKING...")
     response = openai.ChatCompletion.create(
@@ -59,17 +51,11 @@ def ask(input_str, index_file):
         temperature=0.0,
     )
 
-    # print("\nRESPONSE:")
-    # print(response)
-
     # show question and answer
     content = response['choices'][0]['message']['content']
     print("\nANSWER:")
     print(f">>>> {input_str}")
     print(">", content)
-
-    # show reference
-    # print("\nREFERENCE:", *[f"[{s}]" for s in used_title])
 
 
 def main():
