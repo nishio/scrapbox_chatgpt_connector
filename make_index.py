@@ -56,7 +56,7 @@ def clean(line):
     return line
 
 
-def update_from_scrapbox(out_index=INDEX_FILE, jsonfile=JSON_FILE, in_index=None):
+def update_from_scrapbox(out_index=INDEX_FILE, jsonfile=JSON_FILE, in_index=None, dry_run=False):
     """
     out_index: output index file name
     jsonfile: input json file name (from scrapbox)
@@ -71,6 +71,15 @@ def update_from_scrapbox(out_index=INDEX_FILE, jsonfile=JSON_FILE, in_index=None
     update_from_scrapbox(
         "nishio-0314.pickle", "from_scrapbox/nishio-0314.json", "nishio-0310.pickle")
     """
+    tokens = 0
+
+    def add(body, title, cache):
+        nonlocal tokens
+        if dry_run:
+            tokens += get_size(body)
+        else:
+            vs.get_or_make(body, title, cache)
+
     cache = None
     if in_index is not None:
         cache = VectorStore(in_index, create_if_not_exist=False).cache
@@ -83,11 +92,14 @@ def update_from_scrapbox(out_index=INDEX_FILE, jsonfile=JSON_FILE, in_index=None
             buf.append(clean(line))
             body = " ".join(buf)
             if get_size(body) > BLOCK_SIZE:
-                vs.get_or_make(body, title, cache)
+                add(body, title, cache)
                 buf = buf[len(buf) // 2:]
         body = " ".join(buf).strip()
         if body:
-            vs.get_or_make(body, title, cache)
+            add(body, title, cache)
+    if dry_run:
+        cost = tokens / 1000_000 * 0.4
+        print("tokens:", tokens, f"cost: {cost:.2f}USD")
     vs.save()
 
 
@@ -144,4 +156,6 @@ class VectorStore:
 
 
 if __name__ == "__main__":
-    update_from_scrapbox()
+    # update_from_scrapbox()
+    update_from_scrapbox("langbook2.pickle",
+                         "from_scrapbox/langbook2.json", dry_run=True)
