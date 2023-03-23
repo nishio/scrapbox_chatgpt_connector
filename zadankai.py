@@ -83,7 +83,7 @@ def main():
 
 def test():
     from random import shuffle
-    people = ["motoso",  "nishio",  # "mtane0412", "qualia-san", "tkgshn",
+    people = ["motoso",  "nishio", "mtane0412", "qualia-san", "tkgshn",
               "blu3mo_filtered"]
     shuffle(people)
     input_str = "知的生産とは？"
