@@ -2,7 +2,6 @@ import openai
 from make_index import VectorStore, get_size, embed, clean
 import pyperclip
 
-INDEX_FILE = "nishio.pickle"
 
 # Your reply should be shorter than 250 characters.
 # Use stepwise refinement.
@@ -21,7 +20,7 @@ MAX_PROMPT_SIZE = 4096
 RETURN_SIZE = 1000
 
 
-def ask(input_str):
+def ask(input_str, index_file="nishio.pickle"):
     input_str = clean(input_str)
 
     PROMPT_SIZE = get_size(PROMPT)
@@ -32,7 +31,7 @@ def ask(input_str):
         raise RuntimeError("too large input!")
     rest -= input_size
 
-    vs = VectorStore(INDEX_FILE)
+    vs = VectorStore(index_file)
     samples = vs.get_sorted(input_str)
 
     to_use = []
