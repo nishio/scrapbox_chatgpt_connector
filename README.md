@@ -29,10 +29,11 @@ $ python make_index.py
 
 It outputs like below:
 
-code::
- % python make_index.py
-  97%|███████████████████████████████████████████████████████████████████████████████████████████████████▉ | 846/872 [07:06<00:10, 2.59 It/s]The server is currently overloaded with other requests. Sorry about that! You can retry your request, or contact us through our help center at help. openai.com if the error persists.
- 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████| 872/872 [07:45<00:00, 1 .87it/s] 
+```
+% python make_index.py
+ 97%|███████████████████████████████████████████████████████████████████████████████████████████████████▉ | 846/872 [07:06<00:10, 2.59 It/s]The server is currently overloaded with other requests. Sorry about that! You can retry your request, or contact us through our help center at help. openai.com if the error persists.
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████| 872/872 [07:45<00:00, 1 .87it/s] 
+```
 
 Ask. 
 

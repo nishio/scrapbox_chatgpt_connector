@@ -42,7 +42,7 @@ def ask(input_str, index_file):
     prompt = PROMPT.format(input=input_str, text=text)
 
     print("\nTHINKING...")
-    response = openai.ChatCompletion.create(
+    response = openai.OpenAI().chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user", "content": prompt}
@@ -52,7 +52,7 @@ def ask(input_str, index_file):
     )
 
     # show question and answer
-    content = response['choices'][0]['message']['content']
+    content = response.choices[0].message.content
     print("\nANSWER:")
     print(f">>>> {input_str}")
     print(">", content)

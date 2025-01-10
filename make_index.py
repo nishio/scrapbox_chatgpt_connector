@@ -30,7 +30,7 @@ def embed_text(text, sleep_after_success=1):
 
     while True:
         try:
-            res = openai.Embedding.create(
+            res = openai.OpenAI().embeddings.create(
                 input=[text],
                 model="text-embedding-ada-002")
             time.sleep(sleep_after_success)
@@ -40,7 +40,7 @@ def embed_text(text, sleep_after_success=1):
             continue
         break
 
-    return res["data"][0]["embedding"]
+    return res.data[0].embedding
 
 
 def update_from_scrapbox(json_file, out_index, in_index=None):
